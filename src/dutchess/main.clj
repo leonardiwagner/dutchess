@@ -1,9 +1,12 @@
 (ns dutchess.main
   (:gen-class)
-  (:require [dutchess.subtitle-files-reader :refer [get-subtitles-lines]])
-  (:require [dutchess.subtitle-line-parser :refer [parse]]))
+  (:require [dutchess.subtitles-reader.reader :refer [read-subtitles]])
+  (:require [dutchess.parser.text-parser :refer [parse-file]]))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (get-subtitles-lines "./subtitles-example" (fn [line] (parse line))))
+  (case (first args)
+    "read" (read-subtitles "/home/wagner/Documents/result")
+    "parse" (println (parse-file "result.txt"))
+    (println "command not found")))

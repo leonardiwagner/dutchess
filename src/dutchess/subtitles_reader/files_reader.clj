@@ -1,4 +1,4 @@
-(ns dutchess.subtitle-files-reader
+(ns dutchess.subtitles-reader.files-reader
   (:require [clojure.java.io :as io]))
 
 (defn get-directory-items [path]
@@ -17,6 +17,7 @@
 
 (defn get-files-lines [files callback]
   (doseq [file files]
+    (println (str "reading file " file))
     (with-open [rdr (clojure.java.io/reader file)]
       (line-seq rdr)
       (doseq [line (line-seq rdr)]
