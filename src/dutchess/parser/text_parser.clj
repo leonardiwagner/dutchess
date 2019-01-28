@@ -19,8 +19,11 @@
 (defn sort-map-by-value [super-map]
   (into (sorted-map-by (fn [key1 key2] (let [val1 (super-map key1) val2 (super-map key2)] (cond (= val1 val2) (.compareTo key2 key1) (< val1 val2) 1 :else -1)))) super-map))
 
+(defn cleanup-text [text]
+  (clojure.string/replace text  #"[!|.|,|\"|?|:]" ""))
+
 (defn save-word [text]
-  (spit "words.txt" (str text "\n") :append true :encoding "ISO-8859-1"))
+  (spit "words.txt" (str (cleanup-text text) "\n") :append true :encoding "ISO-8859-1"))
 
 (defn parse-file [file]
     (with-open [rdr (clojure.java.io/reader file)]
