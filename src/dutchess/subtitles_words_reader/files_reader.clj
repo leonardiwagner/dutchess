@@ -1,4 +1,4 @@
-(ns dutchess.subtitles-reader.files-reader
+(ns dutchess.subtitles-words-reader.files-reader
   (:require [clojure.java.io :as io]))
 
 (defn get-directory-items [path]
