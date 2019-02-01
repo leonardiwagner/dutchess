@@ -17,14 +17,29 @@
         untill-dutch-end (take-while #(not (is-language-title-element? %)) (rest from-dutch-start))]
     untill-dutch-end))
 
-(defn get-element-definition [element]
-  (cond
-    (= (:tag element) :h3)
-    (let [text (first (:content (first (:content element))))]
-      text)
-    (= (:tag element) :h4)
-    (let [text (first (:content (first (:content element))))]
-      text)))
+(defn get-elements-with-definition [elements]
+  (filter
+    (fn [element]
+      (cond
+        (= (:tag element) :h3)
+        true
+        (= (:tag element) :h4)
+        true
+        :else false))
+    elements))
+
+(defn get-elements-definiton [elements]
+  (map #(clojure.string/lower-case (first (:content (first (:content %))))) elements))
+
+(defn get-official-definitions [definitions]
+  (let [official-definitions ["pronoun", "verb", "noun", "adjective", "adverb"]]
+    (reduce
+      (fn [acc, definition]
+        (if (some #{definition} official-definitions)
+          (conj acc definition)
+          acc))
+      []
+      definitions)))
 
 (defn extract-word-info [html]
   (let [snippet (html/html-snippet html)
@@ -32,10 +47,10 @@
         element (first elements)
         children (:content element)
         notEmptyChildren (filter #(not= (type %) java.lang.String) children)
-        dutch-content (get-dutch-content notEmptyChildren)]
-    (doseq [x dutch-content]
-      (println (get-element-definition x)))))
-    ;(println (map #(get-element-definition %) dutch-content))))
+        dutch-content (get-dutch-content notEmptyChildren)
+        elementDefinitions (get-elements-with-definition dutch-content)
+        definitions (get-elements-definiton elementDefinitions)]
+    (get-official-definitions definitions)))
 
 (defn read-word [word]
   (-> (str "https://en.wiktionary.org/wiki/" word)
