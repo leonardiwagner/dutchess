@@ -1,8 +1,116 @@
 <html>
   <head>
     <title>Dutchess</title>
+    <style>
+      .parallax-bottom {
+        position: fixed;
+        bottom:-1000px;
+        height:10rem;
+      }
+
+      #parallax-bottom-boat {
+        z-index: 1;
+      }
+
+      #parallax-bottom-houses{
+        left: 0%;
+      }
+      #parallax-bottom-light{
+        left: 30%;
+      }
+      #parallax-bottom-mill{
+        left: 60%;
+      }
+      #parallax-bottom-energy{
+        right: 0%
+      }
+    </style>
+
   </head>
   <body>
     Hello world!
+    <section>
+      We gathered statistics from over 4 million Dutch words based on the most famous TV show subtitles to tell give you the fastest way to learn... Dutch!
+    </section>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <img src="images/boat.png" class="parallax-bottom" id="parallax-bottom-boat" />
+    <img src="images/energy.png" class="parallax-bottom" id="parallax-bottom-energy" />
+    <img src="images/houses.png" class="parallax-bottom" id="parallax-bottom-houses" />
+    <img src="images/light.png" class="parallax-bottom" id="parallax-bottom-light" />
+    <img src="images/mill.png" class="parallax-bottom" id="parallax-bottom-mill" />
   </body>
+  <script>
+    const parallaxBottomElements = ["boat", "energy", "houses", "light", "mill"]
+    const elements = parallaxBottomElements.map((elementId) => {
+      const element = document.getElementById("parallax-bottom-" + elementId)
+      return {
+        elementId,
+        element
+      }
+    })
+
+    const boat = elements[0]
+    const energy = elements[1]
+    const houses = elements[2]
+    const light = elements[3]
+    const mill = elements[4]
+
+    const pageSize = document.body.scrollHeight
+
+    document.onscroll = () => {
+      const scrollSize = document.body.scrollTop
+      const depth = scrollSize / pageSize * 100
+
+      boat.element.style.left = (depth - 5 + "rem")
+      boat.element.style.bottom = ((depth * 0.07) - 3) + "rem"
+      houses.element.style.bottom = (depth * -0.1) + "rem"
+
+      if(depth < 20){
+        light.element.style.bottom = (depth  - 20) + "rem"
+      }
+
+      if(depth > 30){
+        light.element.style.bottom = (depth * -1  + 30) + "rem"
+        boat.element.style.bottom = ((depth * -0.07) + 1) + "rem"
+        mill.element.style.bottom = (depth * 0.8 - 38) + "rem"
+      }
+
+      if(depth > 45) {
+          mill.element.style.bottom = -2 + "rem"
+          energy.element.style.bottom = (depth * 1 - 60) + "rem"
+      }
+
+      if(depth > 60){
+        boat.element.style.bottom = ((depth * 0.07) - 7) + "rem"
+        mill.element.style.bottom = (depth * -0.8 + 45) + "rem"
+        energy.element.style.bottom = "0rem"
+      }
+
+      console.log(depth)
+
+    }
+
+    document.onscroll()
+  </script>
 </html>
