@@ -32,7 +32,7 @@
   (map #(clojure.string/lower-case (first (:content (first (:content %))))) elements))
 
 (defn get-official-definitions [definitions]
-  (let [official-definitions ["pronoun", "verb", "noun", "adjective", "adverb"]]
+  (let [official-definitions ["pronoun", "verb", "noun", "adjective", "adverb", "conjunction", "preposition", "interjection", "letter", "numeral", "article", "particle", "mutation", "determiner", "participle", "circumposition"]]
     (reduce
       (fn [acc, definition]
         (if (some #{definition} official-definitions)
@@ -50,11 +50,11 @@
         dutch-content (get-dutch-content notEmptyChildren)
         elementDefinitions (get-elements-with-definition dutch-content)
         definitions (get-elements-definiton elementDefinitions)]
-    (get-official-definitions definitions)))
+    (get-official-definitions (distinct definitions))))
 
 (defn read-word [word]
-  (-> (str "https://en.wiktionary.org/wiki/" word)
-    (slurp)
-    (extract-word-info)))
-    ;(hickory.core/as-hiccup)
-    ;(extract-word-info)))
+  (try
+    (-> (str "https://en.wiktionary.org/wiki/" word)
+      (slurp)
+      (extract-word-info))
+    (catch Exception e (println (.toString e)))))
