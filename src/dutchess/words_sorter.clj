@@ -1,4 +1,4 @@
-(ns dutchess.words-frequency-sorter)
+(ns dutchess.words-sorter)
 
 (defn sort-words [words-map]
   (into
