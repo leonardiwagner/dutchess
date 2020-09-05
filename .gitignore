@@ -1,6 +1,7 @@
 data/
 result.txt
 
+.idea/
 pom.xml
 pom.xml.asc
 *.jar

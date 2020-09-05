@@ -21,15 +21,3 @@
           acc)))
     []
     words))
-
-(defn get-words-from-lines [lines]
-  (reduce
-    (fn [acc, line]
-      (-> line
-        (cleanup-line)
-        (clojure.string/split #" ")
-        (split-words)
-        (->>
-          (concat acc))))
-    []
-    lines))
