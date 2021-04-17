@@ -1,0 +1,6 @@
+version: "3.9"
+services:
+    database:
+        image: postgres:13.2-alpine
+        environment:
+            POSTGRES_PASSWORD: pass123
