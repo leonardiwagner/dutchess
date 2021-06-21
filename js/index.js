@@ -22,9 +22,9 @@ const state = {
     onHoldQueries: 0,
     onHoldInserts: 0,
     MAX_WORKERS: 8,
-    MAX_ON_HOLD_INSERTS: 200000,
-    MAX_ON_HOLD_QUERIES: 200,
-    INSERTS_SIZE: 50000
+    MAX_ON_HOLD_INSERTS: 100000,
+    MAX_ON_HOLD_QUERIES: 100,
+    INSERTS_SIZE: 30000
 }
 
 
@@ -90,12 +90,12 @@ const readSubtitles = async(file) => {
         
         let words = word
 
-        await database.saveWord(0, word)
+        database.saveWord(0, word)
         for(let j = 1; j < 10; j++){
             if(i + j < subtitleWords.length) {
                 words = `${words} ${subtitleWords[i + j].trim()}`
 
-               await database.saveWord(j, words)
+               database.saveWord(j, words)
             }
         }
     }
