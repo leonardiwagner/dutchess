@@ -4,23 +4,23 @@ var database = require('./database')
 
 const detectCharacterEncoding = require('detect-character-encoding');
 
-
-
-
 var parser = require('subtitles-parser');
-
 
 async function getFiles(dir) {
     const dirents = await fs.readdirSync(dir, { withFileTypes: true });
     const files = await Promise.all(dirents.map((dirent) => {
-      const res = path.resolve(dir, dirent.name);
-      return dirent.isDirectory() ? getFiles(res) : res;
+        const res = path.resolve(dir, dirent.name);
+        return dirent.isDirectory() ? getFiles(res) : res;
     }));
     return Array.prototype.concat(...files);
-  }
+}
+
+let workers = 0;
+let totalSubs = 0;
+let parsedSubs = 0;
 
 const go = async() => {
-    const path = '/home/wagner/Downloads'
+    const path = '/home/wagner/Documents/out'
     const files = await getFiles(path)
     
     const srts = files.filter(x => {
@@ -29,9 +29,19 @@ const go = async() => {
         return ext.toLowerCase() === 'srt'
     })
 
-    for(let i = 0; i <srts.length; i++) {
-        await readSubtitles(srts[i])
-    }
+    totalSubs = srts.length;
+
+    setInterval(() => {
+        if(workers < 2) {
+            const srt = srts.pop()
+            readSubtitles(srt)
+
+            //process.stdout.clearLine();
+            //process.stdout.cursorTo(0);
+            //process.stdout.write(`file: ${totalSubs - parsedSubs} from ${totalSubs}`);
+
+        }
+    }, 1500)
    
 }
 
@@ -39,7 +49,8 @@ const go = async() => {
 
 
 const readSubtitles = async(file) => {
-    console.log(file)
+    workers++;
+    //console.log(`\nfile: ${file}`)
     const fileBuffer = fs.readFileSync(file);
     const { encoding, confidence } = detectCharacterEncoding(fileBuffer);
 
@@ -59,7 +70,7 @@ const readSubtitles = async(file) => {
         const words = lines.reduce((acc, x) => acc.concat(x.split(' ')), [])
 
         const cleanWords = words.map((word) => {
-            const x = word.replace(/[!|.|,|\"|?|:]/ig, '')
+            const x = word.replace(/[!|(|)|\[|\].|,|\"|?|:]/ig, '')
             return x
         }).filter(x => x.length > 1)
         
@@ -69,28 +80,29 @@ const readSubtitles = async(file) => {
 
     for(let i = 0; i < subtitleWords.length; i++){
         const word = subtitleWords[i]
-
-        await database.saveWord('', word)
-        /*
+        
+        //process.stdout.clearLine();
+        //process.stdout.cursorTo(0);
+        //process.stdout.write(`word: ${i} from ${subtitleWords.length}`);
+        
         let words = word
+
+        await database.saveWord(0, word)
         for(let j = 1; j < 10; j++){
             if(i + j < subtitleWords.length) {
                 words = `${words} ${subtitleWords[i + j]}`
 
-               await database.saveWord(j + 1, words)
+               const missingFiles = parseInt(totalSubs - parsedSubs)
+               await database.saveWord(j, words, missingFiles)
             }
-        }*/
+        }
     }
 
+    workers--;
+    parsedSubs++;
     return Promise.resolve()
 
 }
 
-const doIt = async() => {
-    go();
-}
-
-(() => {
-    doIt() 
-})();
+go();
   
