@@ -21,9 +21,10 @@ const state = {
     parsedSubs: 0,
     onHoldQueries: 0,
     onHoldInserts: 0,
+    MAX_WORKERS: 8,
     MAX_ON_HOLD_INSERTS: 200000,
-    MAX_ON_HOLD_QUERIES: 20,
-    INSERTS_SIZE: 20000
+    MAX_ON_HOLD_QUERIES: 200,
+    INSERTS_SIZE: 50000
 }
 
 
@@ -43,7 +44,7 @@ const go = async() => {
     state.totalSubs = srts.length;
 
     setInterval(() => {
-        if(state.workers <= 4 && state.onHoldInserts < state.MAX_ON_HOLD_INSERTS) {
+        if(state.workers <= state.MAX_WORKERS && state.onHoldInserts < state.MAX_ON_HOLD_INSERTS) {
             const srt = srts.pop()
             readSubtitles(srt)
         }
