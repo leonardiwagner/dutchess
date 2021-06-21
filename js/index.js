@@ -88,10 +88,6 @@ const readSubtitles = async(file) => {
     for(let i = 0; i < subtitleWords.length; i++){
         const word = subtitleWords[i].trim()
         
-        //process.stdout.clearLine();
-        //process.stdout.cursorTo(0);
-        //process.stdout.write(`word: ${i} from ${subtitleWords.length}`);
-        
         let words = word
 
         await database.saveWord(0, word)
@@ -103,6 +99,10 @@ const readSubtitles = async(file) => {
             }
         }
     }
+
+    const filename = path.basename(file)
+
+    fs.renameSync(file, './parsed/' + filename)
 
     state.workers--;
     state.parsedSubs++;
