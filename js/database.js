@@ -2,7 +2,7 @@ const { Pool } = require('pg')
 const pool = new Pool({
     user: 'postgres',
     host: '',
-    database: 'dutchess_en',
+    database: 'dutchess',
     password: '',
     port: 5432,
   })
@@ -12,12 +12,12 @@ const pool = new Pool({
     process.exit(-1)
   })
 
+let state
+const setState = (_state) => { state = _state}
 
 const bulk = [
     [], [], [], [], [], [], [], [], [], []
 ]
-
-let workers = 0;
 
 const doBulk = () => {
   {
@@ -26,7 +26,7 @@ const doBulk = () => {
       [], [], [], [], [], [], [], [], [], []
     ]
   
-    const sliceSize = bulk[0].length > 5000 ? 5000 : bulk[0].length
+    const sliceSize = bulk[0].length > state.INSERTS_SIZE ? state.INSERTS_SIZE : bulk[0].length
     
   
     local[0] = bulk[0].splice(0, sliceSize)
@@ -47,10 +47,10 @@ const doBulk = () => {
   
       const words = local[i].map(x => `('${x.replace(/'/ig, '\'\'')}')`).join(',')
       
-      workers++;
+      state.onHoldQueries++;
       pool.query(`INSERT INTO words${i + 1} (word) VALUES ${words}`)
         .then((res) => {
-          workers--;
+          state.onHoldQueries--;
           //console.log(res.rows[0])
         })
       //.catch(e => console.log(e + ' ' + words))
@@ -58,12 +58,11 @@ const doBulk = () => {
   }
 }
 
-let remainingFiles = 0;
 
 setInterval(async () => {
-  const bulkSize = bulk[0].length
+  state.onHoldInserts = bulk[0].length
 
-  if(bulkSize > 5000 && workers <= 9) {
+  if(state.onHoldInserts > state.INSERTS_SIZE && state.onHoldQueries <= state.MAX_ON_HOLD_QUERIES) {
     doBulk()
   }
   
@@ -71,7 +70,7 @@ setInterval(async () => {
 
   process.stdout.clearLine();
   process.stdout.cursorTo(0);
-  process.stdout.write(`remaining: ${remainingFiles} - bulksize: ${bulkSize} - workers: ${workers}`);
+  process.stdout.write(JSON.stringify(state));
   
 }, 200)
 
@@ -79,17 +78,14 @@ setInterval(async () => {
 
 
 
-const saveWord = (i, word, _remainingFiles) => {
-  if(_remainingFiles) {
-    remainingFiles = _remainingFiles
-  }
+const saveWord = (i, word) => {
   
   return bulk[i].push(word)
 }
     
     
 
-module.exports = { saveWord }
+module.exports = { saveWord, setState }
 
 //console.log(res.rows[0].message) // Hello world!
 //await client.end()

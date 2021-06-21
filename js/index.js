@@ -15,9 +15,20 @@ async function getFiles(dir) {
     return Array.prototype.concat(...files);
 }
 
-let workers = 0;
-let totalSubs = 0;
-let parsedSubs = 0;
+const state = {
+    workers: 0,
+    totalSubs: 0,
+    parsedSubs: 0,
+    onHoldQueries: 0,
+    onHoldInserts: 0,
+    MAX_ON_HOLD_INSERTS: 200000,
+    MAX_ON_HOLD_QUERIES: 20,
+    INSERTS_SIZE: 20000
+}
+
+
+database.setState(state)
+
 
 const go = async() => {
     const path = '/home/wagner/Documents/out'
@@ -29,19 +40,14 @@ const go = async() => {
         return ext.toLowerCase() === 'srt'
     })
 
-    totalSubs = srts.length;
+    state.totalSubs = srts.length;
 
     setInterval(() => {
-        if(workers < 2) {
+        if(state.workers <= 4 && state.onHoldInserts < state.MAX_ON_HOLD_INSERTS) {
             const srt = srts.pop()
             readSubtitles(srt)
-
-            //process.stdout.clearLine();
-            //process.stdout.cursorTo(0);
-            //process.stdout.write(`file: ${totalSubs - parsedSubs} from ${totalSubs}`);
-
         }
-    }, 1500)
+    }, 200)
    
 }
 
@@ -49,7 +55,7 @@ const go = async() => {
 
 
 const readSubtitles = async(file) => {
-    workers++;
+    state.workers++;
     //console.log(`\nfile: ${file}`)
     const fileBuffer = fs.readFileSync(file);
     const { encoding, confidence } = detectCharacterEncoding(fileBuffer);
@@ -79,7 +85,7 @@ const readSubtitles = async(file) => {
     }, [])
 
     for(let i = 0; i < subtitleWords.length; i++){
-        const word = subtitleWords[i]
+        const word = subtitleWords[i].trim()
         
         //process.stdout.clearLine();
         //process.stdout.cursorTo(0);
@@ -90,16 +96,15 @@ const readSubtitles = async(file) => {
         await database.saveWord(0, word)
         for(let j = 1; j < 10; j++){
             if(i + j < subtitleWords.length) {
-                words = `${words} ${subtitleWords[i + j]}`
+                words = `${words} ${subtitleWords[i + j].trim()}`
 
-               const missingFiles = parseInt(totalSubs - parsedSubs)
-               await database.saveWord(j, words, missingFiles)
+               await database.saveWord(j, words)
             }
         }
     }
 
-    workers--;
-    parsedSubs++;
+    state.workers--;
+    state.parsedSubs++;
     return Promise.resolve()
 
 }
