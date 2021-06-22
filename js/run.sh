@@ -9,7 +9,7 @@ wget  https://dutchess-movies-english.s3.eu-north-1.amazonaws.com/english/movies
 mkdir movies1 movies2 movies3 movies4
 unzip movies.zip
 cd movies
-unzip ./*.zip
+unzip \*.zip
 sudo chmod -R 777 .
 
 x=("../movies1" "../movies2" "../movies3" "../movies4")
