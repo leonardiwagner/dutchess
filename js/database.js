@@ -1,9 +1,11 @@
 const { Pool } = require('pg')
 
+let pool
 let state
-const setState = (_state) => { state = _state}
+const setState = (_state) => {
+  state = _state
 
-const pool = new Pool({
+  pool = new Pool({
     user: 'postgres',
     host: state.DATABASE_HOST,
     database: state.DATABASE_NAME,
@@ -15,6 +17,10 @@ const pool = new Pool({
     console.error('Unexpected error on idle client', err)
     process.exit(-1)
   })
+
+}
+
+
 
 
 
