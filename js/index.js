@@ -24,7 +24,11 @@ const state = {
     MAX_WORKERS: 8,
     MAX_ON_HOLD_INSERTS: 100000,
     MAX_ON_HOLD_QUERIES: 100,
-    INSERTS_SIZE: 30000
+    INSERTS_SIZE: 30000,
+    DATABASE_HOST: '',
+    DATABASE_NAME: '',
+    DATABASE_PASSWORD: '',
+    SUBTITLES_PATH: '/home/ubuntu/movies1'
 }
 
 
@@ -32,7 +36,7 @@ database.setState(state)
 
 
 const go = async() => {
-    const path = '/home/wagner/Documents/out'
+    const path = state.SUBTITLES_PATH
     const files = await getFiles(path)
     
     const srts = files.filter(x => {

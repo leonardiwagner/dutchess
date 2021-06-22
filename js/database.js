@@ -1,9 +1,13 @@
 const { Pool } = require('pg')
+
+let state
+const setState = (_state) => { state = _state}
+
 const pool = new Pool({
     user: 'postgres',
-    host: '',
-    database: 'dutchess',
-    password: '',
+    host: state.DATABASE_HOST,
+    database: state.DATABASE_NAME,
+    password: state.DATABASE_PASSWORD,
     port: 5432,
   })
 
@@ -12,8 +16,7 @@ const pool = new Pool({
     process.exit(-1)
   })
 
-let state
-const setState = (_state) => { state = _state}
+
 
 const bulk = [
     [], [], [], [], [], [], [], [], [], []
@@ -66,11 +69,13 @@ setInterval(async () => {
     doBulk()
   }
   
+
+  const { totalSubs, parsedSubs, onHoldQueries, onHoldInserts } = state
  
 
   process.stdout.clearLine();
   process.stdout.cursorTo(0);
-  process.stdout.write(JSON.stringify(state));
+  process.stdout.write(JSON.stringify({ totalSubs, parsedSubs, onHoldQueries, onHoldInserts }));
   
 }, 200)
 
