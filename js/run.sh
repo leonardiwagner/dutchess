@@ -1,3 +1,4 @@
+cd ../..
 sudo apt update
 sudo apt install -y unzip
 sudo apt install -y build-essential
